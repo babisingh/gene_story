@@ -39,6 +39,7 @@ graph TD
 | FastAPI app | Python 3.11 + uvicorn | REST API server, SSE streaming; listens on `$PORT` (Railway) or 8000 |
 | Story Agent | anthropic SDK | Generates gene stories on demand, caches to DB |
 | Cache Integrity Monitor | asyncio background task | Hourly check for uncached visited genes |
+| Schema Auto-migrator | asyncio lifespan hook | Applies `api/schema.sql` at startup if tables don't exist (idempotent) |
 
 ### Layer 3 — Frontend
 
@@ -90,8 +91,11 @@ The `properties JSONB` column on `genes` is intentionally open-ended — future 
 (OMIM IDs, UniProt, GTEx expression, etc.) can be added without schema migrations.
 
 The `genestory` application user is granted `ALL PRIVILEGES` on all tables and sequences in the
-`public` schema. This is handled at the end of `db/init.sql`, since the superuser (`POSTGRES_USER`)
-creates the tables and the app user requires explicit grants.
+`public` schema. This is handled at the end of both `db/init.sql` and `api/schema.sql`.
+
+The schema is defined in two places that must remain in sync:
+- `db/init.sql` — executed by the PostgreSQL container entrypoint on first start (local Docker Compose)
+- `api/schema.sql` — applied idempotently by the API at startup via `CREATE TABLE IF NOT EXISTS` (Railway and other environments where the PostgreSQL entrypoint does not run init scripts)
 
 ---
 
@@ -160,13 +164,21 @@ The application supports deployment on [Railway](https://railway.app/) via dynam
 API URL configuration:
 
 - **API container**: `uvicorn` listens on `${PORT:-8000}`. Railway injects `$PORT` at runtime;
-  the default of `8000` is used for local Docker Compose.
+  the default of `8000` is used for local Docker Compose. `--reload` is disabled in production.
 - **Frontend container**: `nginx.conf` is treated as a template (`default.conf.template`).
   At container startup, `docker-entrypoint.sh` runs `sed` to substitute two placeholders:
   - `__PORT__` → `$PORT` (Railway public port) or `80` (default)
   - `__API_URL__` → `$API_URL` (Railway internal API address) or `http://api:8000` (default)
 
   The resolved config is written to `/etc/nginx/conf.d/default.conf` before nginx starts.
+
+- **CORS**: allowed origins include `http://localhost:3000`, `http://localhost:5173`, the
+  hardcoded Railway frontend domain (`https://frontend-production-6c210.up.railway.app`), and
+  any URL set via the `FRONTEND_URL` environment variable.
+
+- **Schema migration**: on startup the API applies `api/schema.sql` idempotently, so no
+  separate migration step is needed on Railway where the PostgreSQL entrypoint does not run
+  `db/init.sql`.
 
 ---
 
@@ -183,6 +195,7 @@ gene_story/
 │   └── requirements.txt
 ├── api/
 │   ├── main.py              ← FastAPI app entry point
+│   ├── schema.sql           ← Idempotent schema (applied at startup; mirrors db/init.sql)
 │   ├── story_agent.py       ← 4-layer cached story generation
 │   ├── cache_integrity.py   ← Background integrity monitor
 │   └── routes/
@@ -243,7 +256,10 @@ docker compose up -d   # proxy env vars also passed to API container at runtime
 ### Railway
 Set the following environment variables in the Railway dashboard:
 - `API_URL` — internal URL of the API service (e.g. `http://api.railway.internal:8000`)
+- `FRONTEND_URL` — public URL of the frontend service (added to CORS allowed origins)
 - `PORT` is injected automatically by Railway for both the API and frontend services.
+
+The API will auto-apply the database schema on first startup — no separate migration step needed.
 
 ### Production (Hetzner VPS)
 See README.md for full deployment instructions.
@@ -262,3 +278,4 @@ See README.md for full deployment instructions.
 | 2026-03-12 | fix: relax psycopg2-binary version pin to >=2.9.9 in parser/requirements.txt |
 | 2026-03-12 | fix: pass proxy env vars to API container at runtime — HTTP_PROXY/HTTPS_PROXY/NO_PROXY (and lowercase) now forwarded to the running API container; static extra_hosts entries added for Anthropic API hostnames |
 | 2026-03-12 | fix: Railway deployment — dynamic PORT and nginx API proxy — API listens on $PORT; nginx port and backend URL substituted at startup via docker-entrypoint.sh and nginx.conf template |
+| 2026-03-12 | fix: auto-apply DB schema on startup + Railway CORS + dynamic PORT — API applies api/schema.sql idempotently at startup; CORS allows Railway frontend domain and $FRONTEND_URL; uvicorn --reload removed for production |
