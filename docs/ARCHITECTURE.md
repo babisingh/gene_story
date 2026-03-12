@@ -162,7 +162,11 @@ gene_story/
 │   └── setup_hooks.py       ← Installs the git post-commit hook
 ├── docs/
 │   └── ARCHITECTURE.md      ← This file (auto-maintained)
+├── .claude/
+│   └── commands/
+│       └── review.md        ← Slash command definition for /review
 ├── docker-compose.yml
+├── CLAUDE.md                ← Claude Code instructions for this project
 ├── .env                     ← Secrets (never committed)
 └── .env.example             ← Template for .env
 ```
@@ -191,3 +195,4 @@ See README.md for full deployment instructions.
 | Date | Change |
 |------|--------|
 | 2026-03-12 | Initial architecture — all core components created |
+| 2026-03-12 | feat: initial commit — all application files added (parser, API, frontend, agents, schema, docs, CLAUDE.md, .env.example) |
