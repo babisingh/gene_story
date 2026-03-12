@@ -1,0 +1,76 @@
+# Gene Story — Docker Compose
+# Runs four services:
+#   postgres  — the database (always running)
+#   api       — FastAPI backend (always running)
+#   frontend  — React UI served by Nginx (always running)
+#   parser    — one-shot data loader, run manually then exits
+#
+# First-time setup:
+#   1. docker compose up -d postgres
+#   2. docker compose run --rm parser python gtf_parser.py
+#   3. docker compose run --rm parser python load_cytoband.py
+#   4. docker compose up -d
+#   5. Visit http://localhost:3000
+
+services:
+
+  # ─── PostgreSQL Database ────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # persists data across restarts
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql  # runs on first start
+    ports:
+      - "5432:5432"    # expose for local debugging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ─── FastAPI Backend ─────────────────────────────────────────────────────────
+  api:
+    build: ./api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    volumes:
+      - ./api:/app           # live reload in development
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─── React Frontend ──────────────────────────────────────────────────────────
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+  # ─── GTF Parser (run manually, exits after completion) ───────────────────────
+  # Run with:
+  #   docker compose run --rm parser python gtf_parser.py
+  #   docker compose run --rm parser python load_cytoband.py
+  parser:
+    build: ./parser
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    volumes:
+      - ./data:/app/data     # mounts the downloaded GTF file into the container
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:            # named volume keeps DB data safe across restarts
