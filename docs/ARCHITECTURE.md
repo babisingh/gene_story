@@ -232,3 +232,4 @@ See README.md for full deployment instructions.
 | 2026-03-12 | fix: removed Docker Compose `profiles` constraint from parser service — `docker compose run --rm parser` now works directly without `--profile tools` |
 | 2026-03-12 | fix: grant table permissions to genestory user in init.sql — superuser-created tables now explicitly accessible to the app user |
 | 2026-03-12 | fix: Docker proxy and SSL support — all Dockerfiles accept HTTP_PROXY/HTTPS_PROXY build args; pip and npm tolerate proxy-intercepted TLS; cytoband downloader uses unverified SSL context; parser DB host-rewrite removed |
+| 2026-03-12 | fix: relax psycopg2-binary version pin to >=2.9.9 in parser/requirements.txt |
