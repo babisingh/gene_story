@@ -129,6 +129,26 @@ Subsequent visits → Cache hit → instant return
 
 ---
 
+## Proxy & Network Build Support
+
+All three Dockerfiles (`api`, `parser`, `frontend`) accept `HTTP_PROXY`, `HTTPS_PROXY`, and
+`NO_PROXY` as build arguments, forwarded from the host environment via `docker-compose.yml`.
+This allows builds to succeed behind corporate or cloud proxies.
+
+Key details:
+- **Python images** (`api`, `parser`): proxy env vars are cleared after `pip install` so the
+  running application is not affected. `pip` is also invoked with `--trusted-host` flags for
+  environments where a proxy terminates TLS.
+- **Node image** (`frontend`): `npm install` is run with `--strict-ssl=false` for the same reason.
+- **Cytoband downloader** (`load_cytoband.py`): uses an unverified SSL context
+  (`ssl.CERT_NONE`) when fetching the UCSC cytoband file, to handle proxies that present a
+  self-signed certificate. This is acceptable because the file is public, static data.
+- `DATABASE_URL` in both parser scripts is now expected to be set correctly by the caller
+  (docker-compose sets `@postgres:`, native runs pass `@localhost:`); the previous
+  unconditional host-rewrite has been removed.
+
+---
+
 ## File Structure
 
 ```
@@ -189,6 +209,15 @@ docker compose up -d
 # API docs: http://localhost:8000/docs
 ```
 
+### Behind a Proxy
+```bash
+export HTTP_PROXY=http://proxy.example.com:3128
+export HTTPS_PROXY=http://proxy.example.com:3128
+export NO_PROXY=localhost,postgres
+docker compose build   # proxy args forwarded automatically
+docker compose up -d
+```
+
 ### Production (Hetzner VPS)
 See README.md for full deployment instructions.
 
@@ -202,3 +231,4 @@ See README.md for full deployment instructions.
 | 2026-03-12 | feat: initial commit — all application files added (parser, API, frontend, agents, schema, docs, CLAUDE.md, .env.example) |
 | 2026-03-12 | fix: removed Docker Compose `profiles` constraint from parser service — `docker compose run --rm parser` now works directly without `--profile tools` |
 | 2026-03-12 | fix: grant table permissions to genestory user in init.sql — superuser-created tables now explicitly accessible to the app user |
+| 2026-03-12 | fix: Docker proxy and SSL support — all Dockerfiles accept HTTP_PROXY/HTTPS_PROXY build args; pip and npm tolerate proxy-intercepted TLS; cytoband downloader uses unverified SSL context; parser DB host-rewrite removed |
