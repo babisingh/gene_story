@@ -146,6 +146,11 @@ Key details:
 - `DATABASE_URL` in both parser scripts is now expected to be set correctly by the caller
   (docker-compose sets `@postgres:`, native runs pass `@localhost:`); the previous
   unconditional host-rewrite has been removed.
+- **API container runtime**: proxy env vars (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` and their
+  lowercase equivalents) are now also passed through to the running API container, so the
+  Anthropic SDK can reach the Claude API through a proxy at runtime. Static `extra_hosts`
+  entries for `api.anthropic.com`, `api-staging.anthropic.com`, and `statsig.anthropic.com`
+  are added to the API container for environments that require explicit DNS overrides.
 
 ---
 
@@ -215,7 +220,7 @@ export HTTP_PROXY=http://proxy.example.com:3128
 export HTTPS_PROXY=http://proxy.example.com:3128
 export NO_PROXY=localhost,postgres
 docker compose build   # proxy args forwarded automatically
-docker compose up -d
+docker compose up -d   # proxy env vars also passed to API container at runtime
 ```
 
 ### Production (Hetzner VPS)
@@ -233,3 +238,4 @@ See README.md for full deployment instructions.
 | 2026-03-12 | fix: grant table permissions to genestory user in init.sql — superuser-created tables now explicitly accessible to the app user |
 | 2026-03-12 | fix: Docker proxy and SSL support — all Dockerfiles accept HTTP_PROXY/HTTPS_PROXY build args; pip and npm tolerate proxy-intercepted TLS; cytoband downloader uses unverified SSL context; parser DB host-rewrite removed |
 | 2026-03-12 | fix: relax psycopg2-binary version pin to >=2.9.9 in parser/requirements.txt |
+| 2026-03-12 | fix: pass proxy env vars to API container at runtime — HTTP_PROXY/HTTPS_PROXY/NO_PROXY (and lowercase) now forwarded to the running API container; static extra_hosts entries added for Anthropic API hostnames |
