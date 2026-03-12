@@ -255,8 +255,8 @@ def main():
         "DATABASE_URL",
         "postgresql://genestory:changeme@localhost:5432/genestory",
     )
-    # When running outside Docker, the host is localhost, not 'postgres'
-    db_url = db_url.replace("@postgres:", "@localhost:")
+    # DATABASE_URL is set correctly by docker-compose (uses 'postgres' host)
+    # or passed explicitly when running natively (uses 'localhost')
 
     total_start = time.time()
 

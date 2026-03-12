@@ -35,22 +35,42 @@ services:
 
   # ─── FastAPI Backend ─────────────────────────────────────────────────────────
   api:
-    build: ./api
+    build:
+      context: ./api
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     restart: unless-stopped
     env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NO_PROXY: ${NO_PROXY:-}
+      http_proxy: ${http_proxy:-}
+      https_proxy: ${https_proxy:-}
+      no_proxy: ${no_proxy:-}
     volumes:
       - ./api:/app           # live reload in development
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "api.anthropic.com:160.79.104.10"
+      - "api-staging.anthropic.com:160.79.104.10"
+      - "statsig.anthropic.com:34.36.57.103"
     depends_on:
       postgres:
         condition: service_healthy
 
   # ─── React Frontend ──────────────────────────────────────────────────────────
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     restart: unless-stopped
     ports:
       - "3000:80"
@@ -62,7 +82,12 @@ services:
   #   docker compose run --rm parser python gtf_parser.py
   #   docker compose run --rm parser python load_cytoband.py
   parser:
-    build: ./parser
+    build:
+      context: ./parser
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}

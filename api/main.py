@@ -14,6 +14,7 @@ To run locally (outside Docker):
 import asyncio
 import logging
 import os
+import pathlib
 from contextlib import asynccontextmanager
 
 import asyncpg
@@ -53,6 +54,15 @@ async def lifespan(app: FastAPI):
     )
     log.info("Database connection pool ready")
 
+    # Apply schema if tables don't exist (idempotent — uses CREATE IF NOT EXISTS).
+    # This lets the API self-migrate on Railway where init.sql isn't run by postgres entrypoint.
+    schema_path = pathlib.Path(__file__).parent / "schema.sql"
+    if schema_path.exists():
+        schema_sql = schema_path.read_text()
+        async with app.state.db.acquire() as conn:
+            await conn.execute(schema_sql)
+        log.info("Schema applied (or already existed)")
+
     # Start the background task that checks for missed story caches every hour.
     # asyncio.create_task runs it concurrently without blocking the server.
     asyncio.create_task(run_integrity_monitor(app.state.db))
@@ -75,9 +85,15 @@ app = FastAPI(
 
 # Allow the frontend (different port in development) to call this API.
 # In production, tighten this to your actual domain.
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    os.getenv("FRONTEND_URL", ""),                      # set on Railway
+    "https://frontend-production-6c210.up.railway.app", # Railway frontend domain
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[o for o in ALLOWED_ORIGINS if o],
     allow_methods=["*"],
     allow_headers=["*"],
 )

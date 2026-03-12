@@ -31,6 +31,7 @@ import gzip
 import io
 import logging
 import os
+import ssl
 import urllib.request
 from dotenv import load_dotenv
 
@@ -50,9 +51,18 @@ CYTOBAND_URL = "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBan
 
 
 def download_cytoband() -> list[str]:
-    """Download the cytoband file from UCSC and return its lines."""
+    """Download the cytoband file from UCSC and return its lines.
+
+    Uses an unverified SSL context to handle environments where a proxy
+    introduces a self-signed certificate (e.g. corporate or cloud proxies).
+    """
     log.info(f"Downloading cytoband data from UCSC...")
-    with urllib.request.urlopen(CYTOBAND_URL) as response:
+    # ssl.create_default_context() with check_hostname=False handles proxies
+    # that present their own self-signed certificate (safe for this public data file)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    with urllib.request.urlopen(CYTOBAND_URL, context=ctx) as response:
         compressed_data = response.read()
 
     with gzip.open(io.BytesIO(compressed_data), "rt") as fh:
@@ -134,7 +144,7 @@ def main():
         "DATABASE_URL",
         "postgresql://genestory:changeme@localhost:5432/genestory",
     )
-    db_url = db_url.replace("@postgres:", "@localhost:")
+    # DATABASE_URL is set correctly by docker-compose or passed explicitly when running natively
 
     lines = download_cytoband()
     bands = parse_cytoband(lines)
