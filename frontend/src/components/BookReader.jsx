@@ -253,7 +253,7 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
             )}
           </footer>
         </article>
-        </div>{/* end .book-wrap */}
+        </div>
       ) : null}
 
       {/* ── Navigation ──────────────────────────────────────────────── */}
