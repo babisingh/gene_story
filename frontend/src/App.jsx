@@ -41,7 +41,15 @@ export default function App() {
   const activeChromData=chromosomes.find(c=>c.name===activeChromosome);
 
   if(loading) return <div className="loading-screen"><div className="loading-text">Opening Gene Story…</div></div>;
-  if(error) return <div className="error-screen"><h2>Could not connect to the Gene Story API</h2><p>{error}</p><p>Make sure the API is running: <code>docker compose up -d</code></p></div>;
+  if(error) return (
+    <div className="error-screen">
+      <h2>Could not connect to the Gene Story API</h2>
+      <p>{error}</p>
+      <p>On Railway: set <code>API_URL</code> on the frontend service to the API&apos;s internal URL,<br/>
+      e.g. <code>http://api.railway.internal:8000</code></p>
+      <p>Locally: <code>docker compose up -d</code></p>
+    </div>
+  );
 
   return (
     <div className="app-layout">

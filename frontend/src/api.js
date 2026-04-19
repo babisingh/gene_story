@@ -10,8 +10,13 @@ const BASE = "/api/v1";
 
 /** Fetch all chromosomes (the chapter list). */
 export async function fetchChromosomes() {
-  const res = await fetch(`${BASE}/chromosomes`);
-  if (!res.ok) throw new Error("Could not load chromosomes");
+  let res;
+  try {
+    res = await fetch(`${BASE}/chromosomes`);
+  } catch (err) {
+    throw new Error(`Network error — cannot reach the API (${err.message})`);
+  }
+  if (!res.ok) throw new Error(`API returned HTTP ${res.status} for /chromosomes`);
   return res.json(); // { chromosomes: [...] }
 }
 

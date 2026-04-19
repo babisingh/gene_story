@@ -6,7 +6,7 @@
 API_URL="${API_URL:-http://api:8000}"
 NGINX_PORT="${PORT:-80}"
 # Extract hostname from API_URL for the Host header (strips scheme and path)
-API_HOST=$(echo "$API_URL" | sed 's|https\?://||' | cut -d'/' -f1 | cut -d':' -f1)
+API_HOST=$(echo "$API_URL" | sed -e 's|^https://||' -e 's|^http://||' | cut -d'/' -f1 | cut -d':' -f1)
 
 sed \
   -e "s|__API_URL__|${API_URL}|g" \
