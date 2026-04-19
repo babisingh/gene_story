@@ -33,7 +33,7 @@ const GENE_TYPE_LABELS = {
   TEC:                               "To be experimentally confirmed",
 };
 
-export default function BookReader({ chromosome, activeGeneId, onGeneSelect }) {
+export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onGeneLoad, chromLength }) {
   const [gene,       setGene]       = useState(null);
   const [story,      setStory]      = useState("");
   const [streaming,  setStreaming]  = useState(false);
@@ -88,6 +88,9 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect }) {
     ])
       .then(([geneData, neighbourData]) => {
         setGene(geneData);
+	if (onGeneLoad && chromLength && geneData.start_pos != null) {
+  		onGeneLoad(geneData.start_pos / chromLength);
+		}
         setNeighbours(neighbourData);
         setLoading(false);
 
@@ -188,14 +191,17 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect }) {
         />
       )}
 
-      {/* ── Gene content ────────────────────────────────────────────── */}
-      {loading ? (
+      import BookmarkButton from './BookmarkButton';
+
+      {/* ── Gene content ───────────────────────────────────────────── */}
+	{loading ? (
         <div className="reader-loading">
           <div className="loading-pulse" />
           <span>Loading gene…</span>
         </div>
       ) : gene ? (
         <article className="gene-article">
+	<BookmarkButton geneId={gene.gene_id} />
 
           {/* Gene header */}
           <header className="gene-header">
