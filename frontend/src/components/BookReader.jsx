@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchCytobands, fetchGene, fetchGenes, fetchNeighbours, openStoryStream } from "../api";
 import ChromosomeIdeogram from "./ChromosomeIdeogram";
+import BookmarkButton from "./BookmarkButton";
 
 // Human-readable labels for gene types
 const GENE_TYPE_LABELS = {
@@ -88,9 +89,9 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
     ])
       .then(([geneData, neighbourData]) => {
         setGene(geneData);
-	if (onGeneLoad && chromLength && geneData.start_pos != null) {
-  		onGeneLoad(geneData.start_pos / chromLength);
-		}
+        if (onGeneLoad && chromLength && geneData.start_pos != null) {
+          onGeneLoad(geneData.start_pos / chromLength);
+        }
         setNeighbours(neighbourData);
         setLoading(false);
 
@@ -191,17 +192,15 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
         />
       )}
 
-      import BookmarkButton from './BookmarkButton';
-
-      {/* ── Gene content ───────────────────────────────────────────── */}
-	{loading ? (
+      {/* ── Gene content ────────────────────────────────────────────── */}
+      {loading ? (
         <div className="reader-loading">
           <div className="loading-pulse" />
           <span>Loading gene…</span>
         </div>
       ) : gene ? (
         <article className="gene-article">
-	<BookmarkButton geneId={gene.gene_id} />
+          <BookmarkButton geneId={gene.gene_id} />
 
           {/* Gene header */}
           <header className="gene-header">

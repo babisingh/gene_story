@@ -1,29 +1,13 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   Gene Story — Dark Atmospheric Theme
+/* Gene Story — Dark Atmospheric Theme
    Drop-in replacement for app.css.
-
-   Design principles:
-     - Deep indigo-black reading room atmosphere
-     - Warm cream "paper" cards for gene content
-     - Cinzel serif for gene names & chapter headings (illuminated manuscript)
-     - EB Garamond for story prose (literary, readable)
-     - DM Mono for technical labels, coordinates, IDs
-     - Amber/gold accent replaces botanical green
-     - Generous whitespace — never crowded
-
-   Usage: in frontend/src/main.jsx, replace the app.css import with:
-     import './styles/gene-story-dark-theme.css';
-
-   Also add to frontend/index.html <head>:
-     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@300;400;500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
-   ═══════════════════════════════════════════════════════════════════════════ */
+   Fonts: EB Garamond (prose), Cinzel (headings), DM Mono (technical)
+   Accent: amber/gold instead of botanical green */
 
 :root {
   --bg:          oklch(10% 0.018 260);
   --bg2:         oklch(13% 0.022 255);
   --bg3:         oklch(16% 0.020 258);
   --paper:       oklch(96.5% 0.010 80);
-  --paper2:      oklch(93%   0.014 75);
   --ink:         oklch(18%   0.025 255);
   --ink2:        oklch(38%   0.020 250);
   --ink3:        oklch(55%   0.015 250);
@@ -39,590 +23,123 @@
   --text-faint:  oklch(40%   0.010 260);
 }
 
-/* ── Reset & base ─────────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body, #root {
-  height: 100%;
-  font-family: 'EB Garamond', Georgia, serif;
-  background: var(--bg);
-  color: var(--text-main);
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── App layout ──────────────────────────────────────────────────────────── */
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* ── Top bar ─────────────────────────────────────────────────────────────── */
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  height: 48px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.top-bar-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--amber);
-}
-
-.book-icon { font-size: 16px; }
-
-/* ── Chromosome overview strip ───────────────────────────────────────────── */
-.chr-overview-strip {
-  height: 108px;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 24px 10px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-/* ── Main layout ─────────────────────────────────────────────────────────── */
-.main-layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* ── Chapter list (sidebar) ──────────────────────────────────────────────── */
-.chapter-list {
-  width: 200px;
-  flex-shrink: 0;
-  background: var(--bg2);
-  border-right: 1px solid var(--border);
-  overflow-y: auto;
-  padding: 16px 0;
-}
-
-.chapter-list::-webkit-scrollbar { width: 4px; }
-.chapter-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-.chapter-list-header {
-  padding: 0 16px 12px;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.chapter-group { margin-bottom: 6px; }
-
-.chapter-group-label {
-  padding: 6px 16px 4px;
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.chapter-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 6px 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  color: var(--text-dim);
-  transition: background 0.1s, color 0.1s;
-}
-
-.chapter-item:hover { background: var(--bg3); color: var(--text-main); }
-
-.chapter-item.active {
-  background: var(--amber-bg);
-  color: var(--amber);
-}
-
-.chapter-name { font-weight: 500; }
-.chapter-gene-count { font-size: 10px; opacity: 0.6; }
-.chapter-item.active .chapter-gene-count { opacity: 0.8; }
-
-/* ── Reader area ─────────────────────────────────────────────────────────── */
-.reader-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 0 100px;
-  display: flex;
-  justify-content: center;
-}
-
-.reader-area::-webkit-scrollbar { width: 5px; }
-.reader-area::-webkit-scrollbar-track { background: transparent; }
-.reader-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-.book-reader {
-  width: 100%;
-  max-width: 720px;
-  padding: 40px 48px 0;
-}
-
-/* ── Chapter heading ─────────────────────────────────────────────────────── */
-.chapter-heading { margin-bottom: 20px; }
-
-.chapter-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.chapter-title {
-  font-family: 'Cinzel', serif;
-  font-size: 21px;
-  font-weight: 500;
-  color: var(--text-main);
-  margin-top: 4px;
-}
-
-/* ── Chromosome ideogram (single chromosome) ─────────────────────────────── */
-.ideogram-wrapper {
-  margin-bottom: 28px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 14px 20px 8px;
-}
-
-.ideogram-wrapper svg { width: 100%; height: auto; display: block; }
-
-/* ── Gene article ─────────────────────────────────────────────────────────── */
-.gene-article {
-  background: var(--paper);
-  color: var(--ink);
-  border-radius: 0;
-  padding: 48px 56px 56px;
-  margin-bottom: 24px;
-  position: relative;
-  box-shadow:
-    0 0 80px oklch(5% 0.05 55 / 0.4),
-    0 0 0 1px oklch(82% 0.015 75);
-}
-
-/* Subtle paper grain */
-.gene-article::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none;
-  opacity: 0.5;
-  border-radius: 0;
-}
-
-.gene-header { margin-bottom: 28px; }
-
-.gene-title-row {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-
-.gene-name {
-  font-family: 'Cinzel', serif;
-  font-size: 34px;
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-}
-
-/* Gene type badge */
-.gene-type-badge {
-  padding: 3px 10px;
-  border-radius: 2px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-  background: oklch(88% 0.025 75);
-  color: var(--amber-dim);
-  border: 1px solid oklch(78% 0.04 75);
-}
-
-.gene-type-badge.type-protein_coding    { background: oklch(88% 0.025 75);  color: oklch(50% 0.12 55); }
-.gene-type-badge.type-lncRNA            { background: oklch(88% 0.020 200); color: oklch(45% 0.12 200); }
-.gene-type-badge.type-pseudogene,
-.gene-type-badge.type-processed_pseudogene,
-.gene-type-badge.type-unprocessed_pseudogene,
-.gene-type-badge.type-transcribed_unprocessed_pseudogene
-                                        { background: oklch(88% 0.015 280); color: oklch(45% 0.10 280); }
-.gene-type-badge.type-miRNA             { background: oklch(88% 0.020 60);  color: oklch(50% 0.14 60); }
-.gene-type-badge.type-snRNA,
-.gene-type-badge.type-snoRNA            { background: oklch(88% 0.020 25);  color: oklch(50% 0.14 25); }
-
-.gene-meta {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--ink3);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
-}
-
-.meta-sep { color: var(--ink3); opacity: 0.4; }
-
-/* ── Story text ──────────────────────────────────────────────────────────── */
-.story-text {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 17.5px;
-  line-height: 1.85;
-  color: var(--ink);
-  text-align: justify;
-  text-wrap: pretty;
-  hyphens: auto;
-}
-
-.story-text p { margin-bottom: 1.4em; }
-.story-text p:last-child { margin-bottom: 0; }
-
-/* Drop cap on first paragraph */
-.story-text p:first-child::first-letter {
-  font-family: 'Cinzel', serif;
-  font-size: 4.2em;
-  font-weight: 600;
-  float: left;
-  line-height: 0.82;
-  margin: 0.06em 0.12em 0 0;
-  color: var(--amber-dim);
-}
-
-.cursor-blink {
-  display: inline-block;
-  animation: blink 0.8s step-start infinite;
-  color: var(--amber);
-  font-style: normal;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-.story-generating {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--ink2);
-  font-size: 15px;
-  font-family: 'EB Garamond', serif;
-}
-
-.generating-label { font-style: italic; }
-.story-empty { color: var(--ink3); font-style: italic; }
-
-/* ── Gene footer ─────────────────────────────────────────────────────────── */
-.gene-footer {
-  margin-top: 28px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule);
-  display: flex;
-  gap: 20px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  color: var(--ink3);
-}
-
-.ensembl-id { font-family: 'DM Mono', monospace; }
-
-/* ── Bookmark button (inside .gene-article) ──────────────────────────────── */
-.bookmark-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  cursor: pointer;
-  opacity: 0.3;
-  transition: opacity 0.15s, transform 0.15s;
-  background: none;
-  border: none;
-  padding: 4px;
-  color: var(--amber-dim);
-}
-
-.bookmark-btn:hover   { opacity: 0.75; transform: scale(1.1); }
-.bookmark-btn.bookmarked { opacity: 1; }
-
-/* ── Navigation ──────────────────────────────────────────────────────────── */
-.book-nav {
-  display: flex;
-  justify-content: space-between;
-  gap: 0;
-  margin-bottom: 60px;
-}
-
-.nav-btn {
-  flex: 1;
-  padding: 12px 20px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-dim);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.nav-btn:hover:not(:disabled) {
-  background: var(--amber-bg);
-  border-color: var(--amber-border);
-  color: var(--amber);
-}
-
-.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.nav-prev { text-align: left;  border-radius: 6px 0 0 6px; }
-.nav-next { text-align: right; border-radius: 0 6px 6px 0; border-left: none; }
-.nav-gene-name { font-weight: 600; color: var(--amber); }
-
-/* ── Search bar ──────────────────────────────────────────────────────────── */
-.search-wrapper { position: relative; width: 260px; }
-
-.search-input {
-  width: 100%;
-  padding: 6px 12px;
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  font-family: 'DM Mono', monospace;
-  font-size: 12px;
-  color: var(--text-main);
-  outline: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.search-input:focus { border-color: var(--amber-dim); background: var(--bg3); }
-.search-input::placeholder { color: var(--text-faint); }
-
-.search-spinner {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  border: 2px solid var(--border2);
-  border-top-color: var(--amber);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-
-.search-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  box-shadow: 0 8px 32px oklch(3% 0.04 260 / 0.85);
-  list-style: none;
-  z-index: 100;
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.search-dropdown::-webkit-scrollbar { width: 4px; }
-.search-dropdown::-webkit-scrollbar-thumb { background: var(--border2); }
-
-/* A–Z filter bar */
-.search-alpha-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg3);
-}
-
-.search-alpha-btn {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-  cursor: pointer;
-  color: var(--text-dim);
-  border: 1px solid transparent;
-  transition: all 0.1s;
-  background: none;
-}
-
-.search-alpha-btn:hover:not(.empty) {
-  background: var(--bg2);
-  border-color: var(--border2);
-  color: var(--text-main);
-}
-
-.search-alpha-btn.active {
-  background: var(--amber-bg);
-  border-color: var(--amber-border);
-  color: var(--amber);
-}
-
-.search-alpha-btn.empty { opacity: 0.2; cursor: default; pointer-events: none; }
-
-.search-result {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.1s;
-}
-
-.search-result:last-child { border-bottom: none; }
-.search-result:hover { background: var(--bg3); }
-
-.search-result-name {
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-main);
-}
-
-.search-result-meta { display: flex; gap: 6px; align-items: center; }
-
-.search-result-chrom {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  color: var(--text-faint);
-}
-
-.search-result-type {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px;
-  padding: 1px 6px;
-  background: var(--amber-bg);
-  color: var(--amber-dim);
-  border-radius: 2px;
-  letter-spacing: 0.05em;
-}
-
-/* ── Loading & error states ──────────────────────────────────────────────── */
-.loading-screen, .error-screen {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-}
-
-.loading-text {
-  font-size: 14px;
-  color: var(--text-faint);
-  font-style: italic;
-  font-family: 'EB Garamond', serif;
-}
-
-.error-screen h2  { color: oklch(60% 0.18 25); font-size: 18px; font-family: 'Cinzel', serif; }
-.error-screen p   { font-size: 14px; color: var(--text-dim); }
-.error-screen code { background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
-
-.reader-loading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 40px 0;
-  color: var(--text-faint);
-  font-size: 14px;
-  font-family: 'DM Mono', monospace;
-}
-
-.loading-pulse {
-  width: 10px;
-  height: 10px;
-  background: var(--amber);
-  border-radius: 50%;
-  animation: pulse 1s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1);   opacity: 1; }
-  50%       { transform: scale(1.4); opacity: 0.5; }
-}
-
-.reader-error { padding: 40px; text-align: center; color: var(--text-dim); }
-.reader-error button {
-  margin-top: 12px;
-  padding: 8px 20px;
-  background: var(--amber-dim);
-  color: var(--bg);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: 'DM Mono', monospace;
-}
-
-.welcome { padding: 60px 40px; text-align: center; color: var(--text-dim); }
-.welcome h1 {
-  font-family: 'Cinzel', serif;
-  font-size: 28px;
-  color: var(--text-main);
-  margin-bottom: 12px;
-}
-
-/* ── Scrollbars ──────────────────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: oklch(30% 0.025 260); }
-
-/* ── Mobile ──────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .chapter-list { display: none; }
-  .book-reader  { padding: 24px 20px 0; }
-  .gene-article { padding: 32px 24px 40px; }
-  .gene-name    { font-size: 26px; }
-  .story-text   { font-size: 16px; }
-  .chr-overview-strip { overflow-x: auto; justify-content: flex-start; padding: 8px 16px 10px; }
-  .chr-overview-strip::-webkit-scrollbar { display: none; }
-}
-
-@media (max-width: 480px) {
-  .gene-article { padding: 24px 16px 32px; }
-  .gene-name    { font-size: 22px; }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%;font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--text-main);font-size:16px;-webkit-font-smoothing:antialiased}
+
+.app-layout{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:48px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.top-bar-title{display:flex;align-items:center;gap:10px;font-family:'Cinzel',serif;font-size:13px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--amber)}
+.book-icon{font-size:16px}
+
+.chr-overview-strip{height:108px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:8px 24px 10px;flex-shrink:0;overflow:hidden}
+
+.main-layout{display:flex;flex:1;overflow:hidden}
+
+.chapter-list{width:200px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0}
+.chapter-list::-webkit-scrollbar{width:4px}
+.chapter-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.chapter-list-header{padding:0 16px 12px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--text-faint)}
+.chapter-group{margin-bottom:6px}
+.chapter-group-label{padding:6px 16px 4px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+.chapter-item{display:flex;align-items:center;justify-content:space-between;width:100%;padding:6px 16px;background:none;border:none;cursor:pointer;text-align:left;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);transition:background .1s,color .1s}
+.chapter-item:hover{background:var(--bg3);color:var(--text-main)}
+.chapter-item.active{background:var(--amber-bg);color:var(--amber)}
+.chapter-name{font-weight:500}
+.chapter-gene-count{font-size:10px;opacity:.6}
+
+.reader-area{flex:1;overflow-y:auto;padding:0 0 100px;display:flex;justify-content:center}
+.reader-area::-webkit-scrollbar{width:5px}
+.reader-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+.book-reader{width:100%;max-width:720px;padding:40px 48px 0}
+
+.chapter-heading{margin-bottom:20px}
+.chapter-label{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--text-faint)}
+.chapter-title{font-family:'Cinzel',serif;font-size:21px;font-weight:500;color:var(--text-main);margin-top:4px}
+
+.ideogram-wrapper{margin-bottom:28px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px 20px 8px}
+.ideogram-wrapper svg{width:100%;height:auto;display:block}
+
+.gene-article{background:var(--paper);color:var(--ink);border-radius:0;padding:48px 56px 56px;margin-bottom:24px;position:relative;box-shadow:0 0 80px oklch(5% .05 55/.4),0 0 0 1px oklch(82% .015 75)}
+.gene-article::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;opacity:.5}
+
+.gene-header{margin-bottom:28px}
+.gene-title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.gene-name{font-family:'Cinzel',serif;font-size:34px;font-weight:600;color:var(--ink);letter-spacing:.02em;line-height:1.1}
+
+.gene-type-badge{padding:3px 10px;border-radius:2px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.08em;white-space:nowrap;background:oklch(88% .025 75);color:var(--amber-dim);border:1px solid oklch(78% .04 75)}
+.gene-type-badge.type-protein_coding{background:oklch(88% .025 75);color:oklch(50% .12 55)}
+.gene-type-badge.type-lncRNA{background:oklch(88% .02 200);color:oklch(45% .12 200)}
+.gene-type-badge.type-pseudogene,.gene-type-badge.type-processed_pseudogene,.gene-type-badge.type-unprocessed_pseudogene,.gene-type-badge.type-transcribed_unprocessed_pseudogene{background:oklch(88% .015 280);color:oklch(45% .10 280)}
+.gene-type-badge.type-miRNA{background:oklch(88% .02 60);color:oklch(50% .14 60)}
+.gene-type-badge.type-snRNA,.gene-type-badge.type-snoRNA{background:oklch(88% .02 25);color:oklch(50% .14 25)}
+
+.gene-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3);display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.meta-sep{color:var(--ink3);opacity:.4}
+
+.story-text{font-family:'EB Garamond',Georgia,serif;font-size:17.5px;line-height:1.85;color:var(--ink);text-align:justify;text-wrap:pretty;hyphens:auto}
+.story-text p{margin-bottom:1.4em}
+.story-text p:last-child{margin-bottom:0}
+.story-text p:first-child::first-letter{font-family:'Cinzel',serif;font-size:4.2em;font-weight:600;float:left;line-height:.82;margin:.06em .12em 0 0;color:var(--amber-dim)}
+
+.cursor-blink{display:inline-block;animation:blink .8s step-start infinite;color:var(--amber);font-style:normal}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.story-generating{display:flex;align-items:center;gap:10px;color:var(--ink2);font-size:15px}
+.generating-label{font-style:italic}
+.story-empty{color:var(--ink3);font-style:italic}
+
+.gene-footer{margin-top:28px;padding-top:16px;border-top:1px solid var(--rule);display:flex;gap:20px;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink3)}
+.ensembl-id{font-family:'DM Mono',monospace}
+
+.bookmark-btn{position:absolute;top:20px;right:20px;cursor:pointer;opacity:.3;transition:opacity .15s,transform .15s;background:none;border:none;padding:4px;color:var(--amber-dim)}
+.bookmark-btn:hover{opacity:.75;transform:scale(1.1)}
+.bookmark-btn.bookmarked{opacity:1}
+
+.book-nav{display:flex;justify-content:space-between;gap:0;margin-bottom:60px}
+.nav-btn{flex:1;padding:12px 20px;background:var(--bg2);border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--text-dim);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.nav-btn:hover:not(:disabled){background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.nav-prev{text-align:left;border-radius:6px 0 0 6px}
+.nav-next{text-align:right;border-radius:0 6px 6px 0;border-left:none}
+.nav-gene-name{font-weight:600;color:var(--amber)}
+
+.search-wrapper{position:relative;width:260px}
+.search-input{width:100%;padding:6px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-main);outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--amber-dim);background:var(--bg3)}
+.search-input::placeholder{color:var(--text-faint)}
+.search-spinner{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.search-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;box-shadow:0 8px 32px oklch(3% .04 260/.85);list-style:none;z-index:100;max-height:320px;overflow-y:auto}
+.search-alpha-bar{display:flex;flex-wrap:wrap;gap:2px;padding:8px 10px;border-bottom:1px solid var(--border);background:var(--bg3)}
+.search-alpha-btn{font-family:'DM Mono',monospace;font-size:10px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;cursor:pointer;color:var(--text-dim);border:1px solid transparent;transition:all .1s;background:none}
+.search-alpha-btn:hover:not(.empty){background:var(--bg2);border-color:var(--border2);color:var(--text-main)}
+.search-alpha-btn.active{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.search-alpha-btn.empty{opacity:.2;cursor:default;pointer-events:none}
+.search-result{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
+.search-result:last-child{border-bottom:none}
+.search-result:hover{background:var(--bg3)}
+.search-result-name{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--text-main)}
+.search-result-meta{display:flex;gap:6px;align-items:center}
+.search-result-chrom{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-faint)}
+.search-result-type{font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;background:var(--amber-bg);color:var(--amber-dim);border-radius:2px}
+
+.loading-screen,.error-screen{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text-dim);font-family:'DM Mono',monospace}
+.loading-text{font-size:14px;color:var(--text-faint);font-style:italic;font-family:'EB Garamond',serif}
+.error-screen h2{color:oklch(60% .18 25);font-size:18px;font-family:'Cinzel',serif}
+.error-screen p{font-size:14px;color:var(--text-dim)}
+.error-screen code{background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:13px}
+.reader-loading{display:flex;align-items:center;gap:10px;padding:40px 0;color:var(--text-faint);font-size:14px;font-family:'DM Mono',monospace}
+.loading-pulse{width:10px;height:10px;background:var(--amber);border-radius:50%;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.5}}
+.reader-error{padding:40px;text-align:center;color:var(--text-dim)}
+.reader-error button{margin-top:12px;padding:8px 20px;background:var(--amber-dim);color:var(--bg);border:none;border-radius:4px;cursor:pointer;font-size:13px;font-family:'DM Mono',monospace}
+.welcome{padding:60px 40px;text-align:center;color:var(--text-dim)}
+.welcome h1{font-family:'Cinzel',serif;font-size:28px;color:var(--text-main);margin-bottom:12px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:768px){.chapter-list{display:none}.book-reader{padding:24px 20px 0}.gene-article{padding:32px 24px 40px}.gene-name{font-size:26px}.story-text{font-size:16px}.chr-overview-strip{overflow-x:auto;justify-content:flex-start;padding:8px 16px 10px}}
+@media(max-width:480px){.gene-article{padding:24px 16px 32px}.gene-name{font-size:22px}}
