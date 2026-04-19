@@ -143,3 +143,83 @@ html,body,#root{height:100%;font-family:'EB Garamond',Georgia,serif;background:v
 
 @media(max-width:768px){.chapter-list{display:none}.book-reader{padding:24px 20px 0}.gene-article{padding:32px 24px 40px}.gene-name{font-size:26px}.story-text{font-size:16px}.chr-overview-strip{overflow-x:auto;justify-content:flex-start;padding:8px 16px 10px}}
 @media(max-width:480px){.gene-article{padding:24px 16px 32px}.gene-name{font-size:22px}}
+
+/* ── BOOK PAGE EFFECT ──────────────────────────────────────────────────────
+   .book-wrap wraps .gene-article and provides the fore-edge (right side
+   stacked page lines) via its ::after pseudo-element.
+   .gene-article gets page-stack box-shadows and a spine crease ::after.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Wrapper: makes room for the fore-edge on the right */
+.book-wrap {
+  position: relative;
+  padding-right: 18px;
+  margin-bottom: 24px;
+}
+
+/* Fore-edge: horizontal lines = individual page edges stacked on right */
+.book-wrap::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  right: 0;
+  width: 18px;
+  border-radius: 0 3px 3px 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      oklch(91% 0.013 80) 0px,
+      oklch(91% 0.013 80) 1.5px,
+      oklch(86% 0.009 78) 1.5px,
+      oklch(86% 0.009 78) 3px
+    );
+  box-shadow:
+    3px 0 10px oklch(5% 0.02 260 / 0.30),
+    inset -2px 0 6px oklch(5% 0.02 260 / 0.12);
+  pointer-events: none;
+}
+
+/* Override .gene-article margin (now handled by .book-wrap) */
+.book-wrap .gene-article {
+  margin-bottom: 0;
+  /* Page stack: each shadow = a page underneath, offset right and down */
+  box-shadow:
+    4px  3px 0 0 oklch(90% 0.011 78),
+    8px  6px 0 0 oklch(86% 0.009 76),
+    12px 9px 0 0 oklch(82% 0.007 74),
+    0 16px 60px oklch(5% 0.05 55 / 0.45),
+    0  2px 12px oklch(5% 0.03 260 / 0.25);
+}
+
+/* All direct content sits above pseudo-element overlays */
+.book-wrap .gene-article > * { position: relative; z-index: 2; }
+
+/* Spine binding crease: darkens the left ~48px, like a book fold */
+.book-wrap .gene-article::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 48px; height: 100%;
+  background: linear-gradient(
+    to right,
+    oklch(5% 0.02 260 / 0.13) 0%,
+    oklch(5% 0.02 260 / 0.06) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 0;
+}
+
+/* Mobile: reduce fore-edge on small screens */
+@media (max-width: 768px) {
+  .book-wrap { padding-right: 10px; }
+  .book-wrap::after { width: 10px; }
+  .book-wrap .gene-article {
+    box-shadow:
+      2px 2px 0 0 oklch(90% 0.011 78),
+      4px 4px 0 0 oklch(86% 0.009 76),
+      0 8px 30px oklch(5% 0.05 55 / 0.35);
+  }
+}

@@ -199,6 +199,7 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
           <span>Loading gene…</span>
         </div>
       ) : gene ? (
+        <div className="book-wrap">
         <article className="gene-article">
           <BookmarkButton geneId={gene.gene_id} />
 
@@ -252,6 +253,7 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
             )}
           </footer>
         </article>
+        </div>{/* end .book-wrap */}
       ) : null}
 
       {/* ── Navigation ──────────────────────────────────────────────── */}
