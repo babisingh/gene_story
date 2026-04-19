@@ -156,6 +156,22 @@ def parse_gtf(gtf_path: Path) -> tuple[dict, dict, dict]:
     return genes, exon_counts, transcript_counts
 
 
+def apply_schema(conn) -> None:
+    """Apply schema.sql idempotently so tables exist before any inserts."""
+    schema_path = Path(__file__).parent / "schema.sql"
+    if not schema_path.exists():
+        log.warning("schema.sql not found — skipping schema apply")
+        return
+    log.info("Applying schema...")
+    cur = conn.cursor()
+    try:
+        cur.execute(schema_path.read_text())
+        conn.commit()
+        log.info("Schema applied")
+    finally:
+        cur.close()
+
+
 def load_to_db(
     genes: dict,
     exon_counts: dict,
@@ -168,6 +184,9 @@ def load_to_db(
     """
     log.info("Connecting to PostgreSQL...")
     conn = psycopg2.connect(db_url)
+
+    apply_schema(conn)
+
     cur = conn.cursor()
 
     try:
