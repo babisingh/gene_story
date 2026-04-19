@@ -1,26 +1,26 @@
-import { useEffect, useState, useCallback } from "react";
-import ChapterList from "./components/ChapterList";
-import BookReader from "./components/BookReader";
-import SearchBar from "./components/SearchBar";
-import { fetchChromosomes } from "./api";
-
 /**
- * App — root component and state orchestrator.
+ * App.jsx — updated to include ChromosomeOverview strip and bookmark support.
  *
- * Manages:
- *   chromosomes      — list of all chromosomes (loaded once on mount)
- *   activeChromosome — which chromosome chapter is currently open
- *   activeGeneId     — which gene is currently being read
- *
- * Reading position is persisted to localStorage so the user can
- * resume where they left off on their next visit.
+ * Changes from original:
+ *   1. Imports ChromosomeOverview
+ *   2. Tracks genePositionFraction (for the overview gene marker)
+ *   3. Passes onGeneLoad callback to BookReader
+ *   4. Renders <ChromosomeOverview> in a strip between top-bar and main-layout
  */
+import { useCallback, useEffect, useState } from 'react';
+import BookReader from './components/BookReader';
+import ChapterList from './components/ChapterList';
+import ChromosomeOverview from './components/ChromosomeOverview';
+import SearchBar from './components/SearchBar';
+import { fetchChromosomes } from './api';
+
 export default function App() {
-  const [chromosomes, setChromosomes]           = useState([]);
-  const [activeChromosome, setActiveChromosome] = useState(null);
-  const [activeGeneId, setActiveGeneId]         = useState(null);
-  const [loading, setLoading]                   = useState(true);
-  const [error, setError]                       = useState(null);
+  const [chromosomes,       setChromosomes]       = useState([]);
+  const [activeChromosome,  setActiveChromosome]  = useState(null);
+  const [activeGeneId,      setActiveGeneId]      = useState(null);
+  const [genePosFraction,   setGenePosFraction]   = useState(null);
+  const [loading,           setLoading]           = useState(true);
+  const [error,             setError]             = useState(null);
 
   // Load chromosome list on first render
   useEffect(() => {
@@ -28,15 +28,13 @@ export default function App() {
       .then((data) => {
         setChromosomes(data.chromosomes);
 
-        // Restore last reading position from localStorage
-        const savedGeneId = localStorage.getItem("lastGeneId");
-        const savedChrom  = localStorage.getItem("lastChromosome");
+        const savedGeneId = localStorage.getItem('lastGeneId');
+        const savedChrom  = localStorage.getItem('lastChromosome');
 
         if (savedChrom && savedGeneId) {
           setActiveChromosome(savedChrom);
           setActiveGeneId(savedGeneId);
         } else if (data.chromosomes.length > 0) {
-          // Default to the first chromosome
           setActiveChromosome(data.chromosomes[0].name);
         }
       })
@@ -44,20 +42,32 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  // When the user navigates to a gene, save to localStorage
   const handleGeneSelect = useCallback((geneId, chromosome) => {
     setActiveGeneId(geneId);
     setActiveChromosome(chromosome);
-    localStorage.setItem("lastGeneId",     geneId);
-    localStorage.setItem("lastChromosome", chromosome);
+    setGenePosFraction(null); // reset until BookReader reports back
+    localStorage.setItem('lastGeneId',     geneId);
+    localStorage.setItem('lastChromosome', chromosome);
   }, []);
 
   const handleChromosomeSelect = useCallback((chrom) => {
     setActiveChromosome(chrom);
-    setActiveGeneId(null); // will load the first gene of the chapter
-    localStorage.setItem("lastChromosome", chrom);
-    localStorage.removeItem("lastGeneId");
+    setActiveGeneId(null);
+    setGenePosFraction(null);
+    localStorage.setItem('lastChromosome', chrom);
+    localStorage.removeItem('lastGeneId');
   }, []);
+
+  /**
+   * Called by BookReader once the gene and chromosome length are known.
+   * fraction = gene.start_pos / chromosome.length  (0–1)
+   */
+  const handleGeneLoad = useCallback((fraction) => {
+    setGenePosFraction(fraction);
+  }, []);
+
+  // Find the length of the active chromosome (for BookReader)
+  const activeChromData = chromosomes.find(c => c.name === activeChromosome);
 
   if (loading) {
     return (
@@ -79,16 +89,27 @@ export default function App() {
 
   return (
     <div className="app-layout">
-      {/* ── Top bar ─────────────────────────────────────────────────────── */}
+
+      {/* ── Top bar ─────────────────────────────────────────────────── */}
       <header className="top-bar">
         <div className="top-bar-title">
-          <span className="book-icon">📖</span>
+          <span className="book-icon">◈</span>
           <span>Gene Story</span>
         </div>
         <SearchBar onGeneSelect={handleGeneSelect} />
       </header>
 
-      {/* ── Main layout: sidebar + reader ───────────────────────────────── */}
+      {/* ── All-chromosomes overview strip ──────────────────────────── */}
+      <div className="chr-overview-strip">
+        <ChromosomeOverview
+          chromosomes={chromosomes}
+          activeChromosome={activeChromosome}
+          genePositionFraction={genePosFraction}
+          onSelect={handleChromosomeSelect}
+        />
+      </div>
+
+      {/* ── Main layout: sidebar + reader ───────────────────────────── */}
       <div className="main-layout">
         <ChapterList
           chromosomes={chromosomes}
@@ -103,6 +124,8 @@ export default function App() {
               chromosome={activeChromosome}
               activeGeneId={activeGeneId}
               onGeneSelect={handleGeneSelect}
+              onGeneLoad={handleGeneLoad}
+              chromLength={activeChromData?.length}
             />
           ) : (
             <div className="welcome">
