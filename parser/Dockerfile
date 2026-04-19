@@ -17,6 +17,8 @@ RUN pip install --no-cache-dir \
     -r requirements.txt
 
 COPY . .
+RUN chmod +x seed.sh
 
-# Default command — override with: docker compose run --rm parser python load_cytoband.py
-CMD ["python", "gtf_parser.py"]
+# Default: run both loaders in sequence (Railway deployment).
+# Override for individual scripts: docker compose run --rm parser python gtf_parser.py
+CMD ["sh", "seed.sh"]

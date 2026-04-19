@@ -83,17 +83,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Allow the frontend (different port in development) to call this API.
-# In production, tighten this to your actual domain.
+# Allow the frontend to call this API.
+# allow_origin_regex covers any *.up.railway.app domain so CORS keeps working
+# across Railway re-deployments without hardcoding a specific subdomain.
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
-    os.getenv("FRONTEND_URL", ""),                      # set on Railway
-    "https://frontend-production-6c210.up.railway.app", # Railway frontend domain
+    os.getenv("FRONTEND_URL", ""),  # optional explicit override
 ]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o for o in ALLOWED_ORIGINS if o],
+    allow_origin_regex=r"https://.*\.up\.railway\.app",
     allow_methods=["*"],
     allow_headers=["*"],
 )
