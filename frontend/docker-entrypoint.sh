@@ -5,9 +5,12 @@
 
 API_URL="${API_URL:-http://api:8000}"
 NGINX_PORT="${PORT:-80}"
+# Extract hostname from API_URL for the Host header (strips scheme and path)
+API_HOST=$(echo "$API_URL" | sed 's|https\?://||' | cut -d'/' -f1 | cut -d':' -f1)
 
 sed \
   -e "s|__API_URL__|${API_URL}|g" \
+  -e "s|__API_HOST__|${API_HOST}|g" \
   -e "s|__PORT__|${NGINX_PORT}|g" \
   /etc/nginx/conf.d/default.conf.template \
   > /etc/nginx/conf.d/default.conf
