@@ -1,0 +1,8 @@
+[build]
+builder = "DOCKERFILE"
+
+# ON_FAILURE means: if exit code is 0 (success) Railway won't restart the job.
+# The seed script runs gtf_parser.py then load_cytoband.py and exits cleanly.
+[deploy]
+restartPolicyType       = "ON_FAILURE"
+restartPolicyMaxRetries = 3

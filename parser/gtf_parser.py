@@ -30,9 +30,11 @@ Expected runtime: 2-5 minutes depending on hardware.
 
 import gzip
 import re
+import ssl
 import time
 import logging
 import os
+import urllib.request
 from pathlib import Path
 
 import psycopg2
@@ -237,19 +239,46 @@ def load_to_db(
         conn.close()
 
 
+GTF_URL = (
+    "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/"
+    "gencode.v49.basic.annotation.gtf.gz"
+)
+
+
+def download_gtf(dest: Path) -> None:
+    """Download GENCODE v49 GTF when the file isn't present (e.g. Railway)."""
+    log.info("GTF file not found locally — downloading from GENCODE (~700 MB)")
+    log.info(f"  {GTF_URL}  →  {dest}")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    with urllib.request.urlopen(GTF_URL, context=ctx) as resp:
+        total = int(resp.headers.get("Content-Length", 0))
+        downloaded = 0
+        with open(dest, "wb") as fh:
+            while True:
+                chunk = resp.read(1 << 20)  # 1 MB at a time
+                if not chunk:
+                    break
+                fh.write(chunk)
+                downloaded += len(chunk)
+                if total and downloaded % (50 << 20) < (1 << 20):
+                    log.info(f"  {downloaded / 1e6:.0f} / {total / 1e6:.0f} MB")
+    log.info("Download complete")
+
+
 def main():
-    # Find the GTF file — works both inside Docker (/app/data) and locally
     candidates = [
         Path("/app/data/gencode.v49.basic.annotation.gtf.gz"),
-        Path("/home/user/gene_story/data/gencode.v49.basic.annotation.gtf.gz"),
+        Path("data/gencode.v49.basic.annotation.gtf.gz"),
+        Path(__file__).parent / "data" / "gencode.v49.basic.annotation.gtf.gz",
     ]
     gtf_path = next((p for p in candidates if p.exists()), None)
     if not gtf_path:
-        raise FileNotFoundError(
-            "GTF file not found. Download it first:\n"
-            "  wget -P data/ https://ftp.ebi.ac.uk/pub/databases/gencode/"
-            "Gencode_human/release_49/gencode.v49.basic.annotation.gtf.gz"
-        )
+        # Auto-download when running on Railway or any environment without the file
+        gtf_path = Path("/app/data/gencode.v49.basic.annotation.gtf.gz")
+        download_gtf(gtf_path)
 
     db_url = os.getenv(
         "DATABASE_URL",
