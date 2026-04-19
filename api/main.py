@@ -19,7 +19,7 @@ from contextlib import asynccontextmanager
 
 import asyncpg
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from cache_integrity import run_integrity_monitor
@@ -106,6 +106,16 @@ app.include_router(cytobands.router,   prefix="/api/v1")
 
 
 @app.get("/health", tags=["health"])
-async def health_check():
-    """Simple liveness check — returns OK if the server is running."""
-    return {"status": "ok", "service": "gene-story-api"}
+async def health_check(request: Request):
+    """Liveness check — returns API status and DB population counts."""
+    try:
+        row = await request.app.state.db.fetchrow(
+            "SELECT (SELECT COUNT(*) FROM chromosomes) AS chrom_count,"
+            "       (SELECT COUNT(*) FROM genes)       AS gene_count"
+        )
+        db = {"chromosomes": int(row["chrom_count"]), "genes": int(row["gene_count"])}
+        db_status = "populated" if db["chromosomes"] > 0 else "empty"
+    except Exception as exc:
+        db = {}
+        db_status = f"error: {exc}"
+    return {"status": "ok", "service": "gene-story-api", "db": db_status, "counts": db}

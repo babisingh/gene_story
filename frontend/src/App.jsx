@@ -17,6 +17,12 @@ export default function App() {
     fetchChromosomes()
       .then(data=>{
         setChromosomes(data.chromosomes);
+        if(data.chromosomes.length===0) {
+          // DB not populated — stale localStorage would select a phantom gene
+          localStorage.removeItem('lastGeneId');
+          localStorage.removeItem('lastChromosome');
+          return;
+        }
         const gId=localStorage.getItem('lastGeneId');
         const chr=localStorage.getItem('lastChromosome');
         if(chr&&gId){ setActiveChromosome(chr); setActiveGeneId(gId); }
@@ -41,6 +47,14 @@ export default function App() {
   const activeChromData=chromosomes.find(c=>c.name===activeChromosome);
 
   if(loading) return <div className="loading-screen"><div className="loading-text">Opening Gene Story…</div></div>;
+  if(!error && chromosomes.length===0) return (
+    <div className="error-screen">
+      <h2>Database not loaded</h2>
+      <p>The gene database is empty. Run the GTF parser to populate it.</p>
+      <p>Locally: <code>docker compose run --rm parser python gtf_parser.py</code></p>
+      <p>On Railway: connect to the DB and run the parser against <code>DATABASE_URL</code></p>
+    </div>
+  );
   if(error) return (
     <div className="error-screen">
       <h2>Could not connect to the Gene Story API</h2>

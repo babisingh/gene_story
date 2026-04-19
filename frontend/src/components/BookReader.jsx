@@ -62,9 +62,11 @@ export default function BookReader({ chromosome, activeGeneId, onGeneSelect, onG
         if (data.genes.length > 0) {
           setChromInfo({ total: data.total });
           onGeneSelect(data.genes[0].gene_id, chromosome);
+        } else {
+          setLoading(false); // no genes on this chromosome — stop the spinner
         }
       })
-      .catch((err) => setError(err.message));
+      .catch((err) => { setError(err.message); setLoading(false); });
   }, [chromosome, activeGeneId, onGeneSelect]);
 
   // ── Load gene + stream story whenever the active gene changes ──────────────
