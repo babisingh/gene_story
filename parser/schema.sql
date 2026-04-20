@@ -113,7 +113,12 @@ CREATE INDEX IF NOT EXISTS idx_stories_verified      ON gene_stories(verified);
 
 
 -- ─── Grant permissions to the application user ────────────────────────────────
--- The POSTGRES_USER in docker-compose creates tables as the superuser.
--- This grants the app user (genestory) read/write access to everything.
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO genestory;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO genestory;
+-- Only applies locally (Docker Compose) where a separate 'genestory' role exists.
+-- Wrapped in a DO block so Railway deployments (no 'genestory' role) don't fail.
+DO $$
+BEGIN
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO genestory;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO genestory;
+EXCEPTION WHEN OTHERS THEN
+    NULL;  -- role doesn't exist (e.g. Railway) — safe to skip
+END $$;
