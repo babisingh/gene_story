@@ -6,7 +6,7 @@
 
 API_URL="${API_URL:-http://api:8000}"
 API_URL="${API_URL%/}"   # strip any trailing slash
-NGINX_PORT="${PORT:-80}"
+NGINX_PORT="${PORT:-8080}"
 API_HOST=$(echo "$API_URL" | sed -e 's|^https://||' -e 's|^http://||' | cut -d'/' -f1 | cut -d':' -f1)
 
 echo "=== nginx entrypoint ==="
