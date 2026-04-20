@@ -21,5 +21,5 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 # Railway sets PORT for the public-facing port; nginx listens on it
-EXPOSE 80
+EXPOSE 8000
 CMD ["/docker-entrypoint.sh"]
