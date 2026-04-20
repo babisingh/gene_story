@@ -88,6 +88,8 @@ async def lifespan(app: FastAPI):
             "DATABASE_URL=${{Postgres.DATABASE_URL}} in the API service variables."
         )
     else:
+        # asyncpg requires 'postgresql://' scheme; Railway provides 'postgres://'
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
         # Fire-and-forget: connect in the background so startup is non-blocking
         asyncio.create_task(_init_db(app, db_url))
 
