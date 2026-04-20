@@ -65,14 +65,16 @@ Gene Information:
 
 Write a captivating, book-like story about this gene. Guidelines:
 - For well-studied protein-coding genes: write 3–4 rich paragraphs.
-- For less-studied or non-coding genes: write 1–2 focused paragraphs.
+- For less-studied or non-coding genes or pseudogenes: write 1–2 focused paragraphs.
 - Naturally adapt the length to how much is meaningfully known about this gene.
 - Write as if narrating a discovery — feel like reading a book, not a textbook.
+- Invent different begin line narrative, do not always start with "tucked into X part of chromosome", give a different start always.
 - Cover: what the gene does, where it is active in the body, disease connections \
 if relevant, and any structural or evolutionary curiosities.
 - Use vivid, precise language. Briefly explain any jargon.
 - Pure prose only — no bullet points, no headers, no markdown formatting.
 - Begin directly with the story. No preamble like "This gene..." or "In the...".
+- Be creative in writing, add a touch of smart humor here and there.
 
 Write the story now:\
 """
